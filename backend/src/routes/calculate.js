@@ -60,7 +60,7 @@ router.post('/', async (req, res, next) => {
     // --- Persist ---
     const doc = await Calculation.create({ expression, result });
 
-    return res.status(201).json({
+    return res.status(200).json({
       id: doc._id.toString(),
       expression: doc.expression,
       result: doc.result,

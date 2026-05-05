@@ -76,10 +76,7 @@ let server;
 
 async function start() {
   try {
-    await mongoose.connect(MONGODB_URI, {
-      // Use strict query mode (Mongoose 7+ default, explicit for clarity)
-      strictQuery: true,
-    });
+    await mongoose.connect(MONGODB_URI);
     // eslint-disable-next-line no-console
     console.log(`[server] MongoDB connected: ${MONGODB_URI}`);
 
