@@ -3,11 +3,6 @@
  *
  * Covers every endpoint documented in docs/api-contract.yaml.
  *
- * IMPORTANT: The API contract documents 200 for POST /api/calculate, but the
- * backend implementation (backend/src/routes/calculate.js line 63) returns 201.
- * These tests assert 201 to match the actual implementation. This discrepancy
- * should be resolved by updating the API contract to reflect 201.
- *
  * Run order: all API tests MUST complete before Playwright E2E is launched to
  * prevent stale DB entries from polluting E2E starting state.
  */
@@ -94,16 +89,15 @@ async function main() {
   });
 
   // -------------------------------------------------------------------------
-  // 2. Successful calculation — 201 (implementation returns 201, contract says 200)
+  // 2. Successful calculation — 200
   // -------------------------------------------------------------------------
-  await run('POST /api/calculate {expression:"2+3"} → 201, result===5, has id+createdAt', async () => {
+  await run('POST /api/calculate {expression:"2+3"} → 200, result===5, has id+createdAt', async () => {
     const res = await fetch(`${BASE_URL}/api/calculate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ expression: '2+3' }),
     });
-    // NOTE: contract documents 200; implementation returns 201 — asserting 201
-    assertEqual(res.status, 201, 'status code');
+    assertEqual(res.status, 200, 'status code');
     const body = await res.json();
     assertEqual(body.result, 5, 'body.result');
     assertHasKey(body, 'id');
