@@ -1,0 +1,81 @@
+{
+  "goal": "Build a web calculator with persistent calculation history that is production-ready and deployable at scale.",
+  "created": "2026-05-04",
+  "feature_branch": "agent/web-calculator-history",
+  "status": "pending_approval",
+  "api_contract": "docs/api-contract.yaml",
+  "tasks": [
+    {
+      "id": "t0",
+      "agent": "backend-developer",
+      "objective": "Cold-start scaffold: create .gitignore (covering .env*, node_modules/, dist/), .env.example, pre-commit hook blocking .env commits, root README.md, and directory scaffolding (.claude/state, .claude/retrospectives).",
+      "inputs": [],
+      "output": ".gitignore, .env.example, .git/hooks/pre-commit, README.md",
+      "verification": "git diff --cached is clean with no .env files; .gitignore covers .env*",
+      "depends_on": [],
+      "status": "pending",
+      "attempts": 0,
+      "errors": []
+    },
+    {
+      "id": "t1",
+      "agent": "backend-developer",
+      "objective": "Define the API contract as docs/api-contract.yaml. Endpoints: POST /api/calculate, GET /api/history (paginated), DELETE /api/history/:id, GET /api/health. Include all request/response schemas.",
+      "inputs": [],
+      "output": "docs/api-contract.yaml",
+      "verification": "YAML is valid; all 4 endpoints present with full schemas",
+      "depends_on": ["t0"],
+      "status": "pending",
+      "attempts": 0,
+      "errors": []
+    },
+    {
+      "id": "t2",
+      "agent": "backend-developer",
+      "objective": "Build the Express/MongoDB backend: evaluate math expressions safely, persist to MongoDB, serve all 4 API endpoints per docs/api-contract.yaml. Apply lessons: express.json limit 10kb, prepare statements at module level, placeholder test script in package.json, helmet+cors+rate-limiting.",
+      "inputs": ["docs/api-contract.yaml"],
+      "output": "backend/ directory with server.js, routes, models, package.json, .env.example",
+      "verification": "Server starts cleanly; curl POST /api/calculate returns result + id; GET /api/history returns array; DELETE /api/history/:id returns success",
+      "depends_on": ["t1"],
+      "status": "pending",
+      "attempts": 0,
+      "errors": []
+    },
+    {
+      "id": "t3",
+      "agent": "frontend-developer",
+      "objective": "Build the React/Vite frontend: calculator UI with single-string expression model (not left/op/right state machine), history panel with pagination. Apply lessons: aria-label on all buttons (not data-value), no empty catch blocks, user-visible error states on failed operations.",
+      "inputs": ["docs/api-contract.yaml"],
+      "output": "frontend/ directory with React app, package.json, vite.config.js",
+      "verification": "npm run build succeeds; app renders in browser; buttons have aria-label attributes",
+      "depends_on": ["t1"],
+      "status": "pending",
+      "attempts": 0,
+      "errors": []
+    },
+    {
+      "id": "t4",
+      "agent": "infrastructure-platform-engineer",
+      "objective": "Create Dockerfiles (multi-stage) for backend and frontend, plus docker-compose.yml wiring MongoDB + backend + nginx-fronted frontend. Production-ready: health checks, restart policies, resource limits, nginx serving built React static files proxying /api to backend.",
+      "inputs": ["backend/", "frontend/", ".env.example"],
+      "output": "backend/Dockerfile, frontend/Dockerfile, docker-compose.yml, nginx/nginx.conf",
+      "verification": "docker-compose up --build starts all 3 services; curl localhost returns React app; curl localhost/api/health returns 200",
+      "depends_on": ["t2", "t3"],
+      "status": "pending",
+      "attempts": 0,
+      "errors": []
+    },
+    {
+      "id": "t5",
+      "agent": "test-engineer",
+      "objective": "Write and run integration + E2E tests against the docker-compose stack. Apply lessons: liveness probe before API tests, run all API contract tests first then Playwright E2E, test required fields as both empty string AND absent, use aria-label selectors not data-value.",
+      "inputs": ["docs/api-contract.yaml", "docker-compose.yml"],
+      "output": "tests/ directory with API and E2E test files; green test run",
+      "verification": "All tests pass; test output shows API tests ran before Playwright tests",
+      "depends_on": ["t4"],
+      "status": "pending",
+      "attempts": 0,
+      "errors": []
+    }
+  ]
+}
