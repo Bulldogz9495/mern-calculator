@@ -1,0 +1,23 @@
+# Environment files — never commit secrets
+.env
+.env.*
+.env.local
+.env.*.local
+# Allow the example file (contains only placeholders, no real secrets)
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# OS artifacts
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

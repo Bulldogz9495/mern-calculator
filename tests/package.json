@@ -1,0 +1,12 @@
+{
+  "name": "calculator-tests",
+  "type": "module",
+  "scripts": {
+    "test:api": "node api.test.js",
+    "test:e2e": "playwright test e2e.test.js",
+    "test": "node api.test.js && playwright test e2e.test.js"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.44.0"
+  }
+}
