@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calculator</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="calculator" aria-label="Calculator">
+        <div class="display" aria-live="polite" aria-atomic="true">
+          <div class="display__expression" id="display-expression" aria-label="Expression"></div>
+          <div class="display__result"     id="display-result"     aria-label="Result">0</div>
+        </div>
+        <div class="keypad" role="group" aria-label="Calculator keys">
+          <button class="btn btn--utility"  data-action="clear"    aria-label="Clear">C</button>
+          <button class="btn btn--utility"  data-action="negate"   aria-label="Toggle sign">+/−</button>
+          <button class="btn btn--utility"  data-action="percent"  aria-label="Percent">%</button>
+          <button class="btn btn--operator" data-action="operator" data-value="÷" aria-label="Divide">÷</button>
+          <button class="btn btn--digit"    data-action="digit"    data-value="7">7</button>
+          <button class="btn btn--digit"    data-action="digit"    data-value="8">8</button>
+          <button class="btn btn--digit"    data-action="digit"    data-value="9">9</button>
+          <button class="btn btn--operator" data-action="operator" data-value="×" aria-label="Multiply">×</button>
+          <button class="btn btn--digit"    data-action="digit"    data-value="4">4</button>
+          <button class="btn btn--digit"    data-action="digit"    data-value="5">5</button>
+          <button class="btn btn--digit"    data-action="digit"    data-value="6">6</button>
+          <button class="btn btn--operator" data-action="operator" data-value="−" aria-label="Subtract">−</button>
+          <button class="btn btn--digit"    data-action="digit"    data-value="1">1</button>
+          <button class="btn btn--digit"    data-action="digit"    data-value="2">2</button>
+          <button class="btn btn--digit"    data-action="digit"    data-value="3">3</button>
+          <button class="btn btn--operator" data-action="operator" data-value="+" aria-label="Add">+</button>
+          <button class="btn btn--digit btn--wide" data-action="digit" data-value="0">0</button>
+          <button class="btn btn--digit"    data-action="decimal"  aria-label="Decimal point">.</button>
+          <button class="btn btn--equals"   data-action="equals"   aria-label="Equals">=</button>
+        </div>
+      </section>
+      <section class="history-panel" aria-label="Calculation history">
+        <div class="history-panel__header">
+          <h2 class="history-panel__title">History</h2>
+          <button class="btn-clear-history" id="btn-clear-history" aria-label="Clear all history">Clear History</button>
+        </div>
+        <ol class="history-list" id="history-list" aria-label="Past calculations" reversed></ol>
+        <p class="history-empty" id="history-empty" aria-live="polite">No calculations yet</p>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>
