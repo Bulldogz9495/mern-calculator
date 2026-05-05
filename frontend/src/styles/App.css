@@ -1,0 +1,336 @@
+/* ============================================================
+   Global Reset & Base
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-bg: #1a1a2e;
+  --color-panel: #16213e;
+  --color-panel-border: #0f3460;
+  --color-display-bg: #0d0d1a;
+  --color-text: #e0e0e0;
+  --color-text-muted: #8a8aaa;
+  --color-digit-bg: #2a2a4a;
+  --color-digit-hover: #3a3a5a;
+  --color-digit-active: #4a4a6a;
+  --color-operator-bg: #0f3460;
+  --color-operator-hover: #1a4a80;
+  --color-equals-bg: #e94560;
+  --color-equals-hover: #ff5577;
+  --color-utility-bg: #3a2a4a;
+  --color-utility-hover: #4a3a5a;
+  --color-delete-bg: #6a1a2a;
+  --color-delete-hover: #8a2a3a;
+  --color-error: #ff6b6b;
+  --color-page-btn-bg: #0f3460;
+  --color-page-btn-hover: #1a4a80;
+  --radius: 8px;
+  --radius-sm: 4px;
+  --transition: 0.12s ease;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+/* ============================================================
+   App Layout
+   ============================================================ */
+.app-layout {
+  width: 100%;
+  max-width: 860px;
+}
+
+.app-title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+}
+
+.app-content {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+/* ============================================================
+   Calculator Panel
+   ============================================================ */
+.calculator {
+  background: var(--color-panel);
+  border: 1px solid var(--color-panel-border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  width: 320px;
+  flex-shrink: 0;
+}
+
+/* Display */
+.calculator-display {
+  background: var(--color-display-bg);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  min-height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+.display-text {
+  font-size: 1.75rem;
+  font-weight: 300;
+  color: var(--color-text);
+  word-break: break-all;
+  text-align: right;
+  line-height: 1.2;
+}
+
+/* Error message under display */
+.calculator-error {
+  color: var(--color-error);
+  font-size: 0.8rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  min-height: 1.2em;
+}
+
+/* Button grid */
+.calculator-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+/* ============================================================
+   Buttons (shared)
+   ============================================================ */
+.btn {
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 500;
+  padding: 0.85rem 0;
+  transition: background-color var(--transition), transform var(--transition);
+  color: var(--color-text);
+  line-height: 1;
+  user-select: none;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn:not(:disabled):active {
+  transform: scale(0.95);
+}
+
+/* Focus visible ring for keyboard navigation */
+.btn:focus-visible {
+  outline: 2px solid var(--color-equals-bg);
+  outline-offset: 2px;
+}
+
+/* Span helpers */
+.span-2 {
+  grid-column: span 2;
+}
+
+/* Digit buttons */
+.btn-digit {
+  background-color: var(--color-digit-bg);
+}
+
+.btn-digit:not(:disabled):hover {
+  background-color: var(--color-digit-hover);
+}
+
+.btn-digit:not(:disabled):active {
+  background-color: var(--color-digit-active);
+}
+
+/* Operator buttons */
+.btn-operator {
+  background-color: var(--color-operator-bg);
+}
+
+.btn-operator:not(:disabled):hover {
+  background-color: var(--color-operator-hover);
+}
+
+/* Utility buttons (C, backspace) */
+.btn-utility {
+  background-color: var(--color-utility-bg);
+}
+
+.btn-utility:not(:disabled):hover {
+  background-color: var(--color-utility-hover);
+}
+
+/* Equals button */
+.btn-equals {
+  background-color: var(--color-equals-bg);
+  font-weight: 700;
+}
+
+.btn-equals:not(:disabled):hover {
+  background-color: var(--color-equals-hover);
+}
+
+/* Delete button (in history) */
+.btn-delete {
+  background-color: var(--color-delete-bg);
+  padding: 0.25rem 0.6rem;
+  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.btn-delete:not(:disabled):hover {
+  background-color: var(--color-delete-hover);
+}
+
+/* Pagination buttons */
+.btn-page {
+  background-color: var(--color-page-btn-bg);
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+}
+
+.btn-page:not(:disabled):hover {
+  background-color: var(--color-page-btn-hover);
+}
+
+/* ============================================================
+   History Panel
+   ============================================================ */
+.history-panel {
+  background: var(--color-panel);
+  border: 1px solid var(--color-panel-border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  flex: 1;
+  min-width: 0;
+  max-height: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow: hidden;
+}
+
+.history-title {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.history-loading,
+.history-empty {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.history-error {
+  color: var(--color-error);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.history-list {
+  list-style: none;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  background: var(--color-display-bg);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+}
+
+.history-expression {
+  font-size: 0.9rem;
+  color: var(--color-text);
+  word-break: break-all;
+  flex: 1;
+  min-width: 0;
+}
+
+.history-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.history-delete-error {
+  font-size: 0.7rem;
+  color: var(--color-error);
+  white-space: nowrap;
+}
+
+/* Pagination row */
+.history-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-panel-border);
+}
+
+.history-page-info {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* ============================================================
+   Responsive — stack on small screens
+   ============================================================ */
+@media (max-width: 640px) {
+  .app-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .calculator {
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .history-panel {
+    width: 100%;
+    max-width: 340px;
+    max-height: 360px;
+  }
+}
