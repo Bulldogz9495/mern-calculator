@@ -1,0 +1,161 @@
+openapi: "3.0.3"
+info:
+  title: Web Calculator API
+  version: "1.0.0"
+  description: REST API for a web calculator with persistent history backed by MongoDB.
+
+servers:
+  - url: http://localhost:3001
+    description: Local development
+
+paths:
+  /api/health:
+    get:
+      summary: Health check
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, timestamp]
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /api/calculate:
+    post:
+      summary: Evaluate a math expression and persist the result
+      operationId: calculate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [expression]
+              properties:
+                expression:
+                  type: string
+                  minLength: 1
+                  example: "2 + 2"
+      responses:
+        "201":
+          description: Calculation saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Calculation"
+        "400":
+          description: Missing or empty expression
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Expression could not be evaluated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/history:
+    get:
+      summary: Retrieve paginated calculation history
+      operationId: getHistory
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Paginated list of calculations
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, total, page, limit]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Calculation"
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+
+  /api/history/{id}:
+    delete:
+      summary: Delete a calculation by ID
+      operationId: deleteCalculation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+      responses:
+        "200":
+          description: Calculation deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success]
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        "404":
+          description: Calculation not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    Calculation:
+      type: object
+      required: [id, expression, result, createdAt]
+      properties:
+        id:
+          type: string
+          example: "664a1f2e3b8c9d0e1f2a3b4c"
+        expression:
+          type: string
+          example: "2 + 2"
+        result:
+          type: number
+          example: 4
+        createdAt:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          example: "Expression is required"
