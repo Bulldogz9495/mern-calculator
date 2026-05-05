@@ -1,0 +1,266 @@
+openapi: 3.0.3
+info:
+  title: Web Calculator with History API
+  description: >
+    REST API for evaluating arithmetic expressions and retrieving persistent
+    calculation history. All endpoints are prefixed with /api.
+  version: 1.0.0
+  contact:
+    name: Web Calculator Project
+
+servers:
+  - url: http://localhost:3001
+    description: Local development server
+
+paths:
+  /api/calculate:
+    post:
+      summary: Evaluate an arithmetic expression
+      description: >
+        Evaluates the supplied arithmetic expression, persists the result to
+        MongoDB, and returns the stored record including its generated id and
+        timestamp.
+      operationId: calculate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - expression
+              properties:
+                expression:
+                  type: string
+                  minLength: 1
+                  description: The arithmetic expression to evaluate (e.g. "2+3*4").
+                  example: "2+3*4"
+            examples:
+              valid:
+                summary: Valid expression
+                value:
+                  expression: "2+3*4"
+              division:
+                summary: Division expression
+                value:
+                  expression: "10/2"
+      responses:
+        "200":
+          description: Expression evaluated and persisted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalculationEntry"
+              example:
+                id: "6639c1f2b4e1a2c3d4e5f601"
+                expression: "2+3*4"
+                result: 14
+                createdAt: "2026-05-04T21:00:00.000Z"
+        "400":
+          description: >
+            The request body is malformed, the expression field is missing, or
+            the expression is an empty string.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "Invalid expression"
+        "422":
+          description: >
+            The expression field is present and non-empty but cannot be
+            mathematically evaluated (e.g. "2+*3").
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "Expression could not be evaluated"
+
+  /api/history:
+    get:
+      summary: Retrieve paginated calculation history
+      description: >
+        Returns a paginated list of past calculations ordered by creation time
+        descending. Use page and limit query parameters to navigate results.
+      operationId: getHistory
+      parameters:
+        - name: page
+          in: query
+          description: Page number to retrieve (1-indexed).
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          example: 1
+        - name: limit
+          in: query
+          description: Number of items per page.
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          example: 20
+      responses:
+        "200":
+          description: Paginated list of calculation history entries.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HistoryResponse"
+              example:
+                items:
+                  - id: "6639c1f2b4e1a2c3d4e5f601"
+                    expression: "2+3*4"
+                    result: 14
+                    createdAt: "2026-05-04T21:00:00.000Z"
+                  - id: "6639c1f2b4e1a2c3d4e5f600"
+                    expression: "10/2"
+                    result: 5
+                    createdAt: "2026-05-04T20:55:00.000Z"
+                total: 42
+                page: 1
+                limit: 20
+
+  /api/history/{id}:
+    delete:
+      summary: Delete a single history entry
+      description: >
+        Permanently removes the calculation history entry identified by its
+        MongoDB ObjectId string. Returns 404 if the id does not match any
+        stored entry.
+      operationId: deleteHistoryEntry
+      parameters:
+        - name: id
+          in: path
+          description: MongoDB ObjectId string of the history entry to delete.
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+          example: "6639c1f2b4e1a2c3d4e5f601"
+      responses:
+        "200":
+          description: Entry deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+              example:
+                success: true
+        "404":
+          description: No history entry with the given id was found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "Not found"
+
+  /api/health:
+    get:
+      summary: Liveness probe
+      description: >
+        Returns the service status and current server timestamp. Intended for
+        use by container orchestrators and load-balancer health checks.
+      operationId: healthCheck
+      responses:
+        "200":
+          description: Service is running normally.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - timestamp
+                properties:
+                  status:
+                    type: string
+                    enum:
+                      - ok
+                    description: Always "ok" when the service is reachable.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: ISO 8601 UTC timestamp of when the response was generated.
+              example:
+                status: "ok"
+                timestamp: "2026-05-04T21:00:00.000Z"
+
+components:
+  schemas:
+    CalculationEntry:
+      type: object
+      description: A single persisted calculation record.
+      required:
+        - id
+        - expression
+        - result
+        - createdAt
+      properties:
+        id:
+          type: string
+          description: MongoDB ObjectId string assigned at creation time.
+          example: "6639c1f2b4e1a2c3d4e5f601"
+        expression:
+          type: string
+          description: The original arithmetic expression that was evaluated.
+          example: "2+3*4"
+        result:
+          type: number
+          description: The numeric result of evaluating the expression.
+          example: 14
+        createdAt:
+          type: string
+          format: date-time
+          description: ISO 8601 UTC timestamp of when the record was created.
+          example: "2026-05-04T21:00:00.000Z"
+
+    Error:
+      type: object
+      description: Standard error response body returned on 4xx responses.
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Human-readable description of the error.
+          example: "Invalid expression"
+
+    HistoryResponse:
+      type: object
+      description: Paginated response envelope for the calculation history list.
+      required:
+        - items
+        - total
+        - page
+        - limit
+      properties:
+        items:
+          type: array
+          description: Array of calculation entries for the requested page.
+          items:
+            $ref: "#/components/schemas/CalculationEntry"
+        total:
+          type: integer
+          description: Total number of calculation entries across all pages.
+          example: 42
+        page:
+          type: integer
+          description: The current page number (1-indexed).
+          example: 1
+        limit:
+          type: integer
+          description: The number of items per page used for this response.
+          example: 20
